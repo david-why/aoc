@@ -1,0 +1,8 @@
+__pycache__
+.venv
+poetry.lock
+
+day*.in
+day*.try
+day*.test
+day*.json

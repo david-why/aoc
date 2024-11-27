@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "aoc"
+version = "1.0.0"
+authors = ["david-why"]
+description = "Advent of Code CLI and Library"
+
+[tool.poetry.dependencies]
+python = ">3.8"
+requests = "^2.32.3"
+click = "^8.1.7"
+beautifulsoup4 = "^4.12.3"
+
+[tool.poetry.scripts]
+aoc = "aoc.cli:cli"
