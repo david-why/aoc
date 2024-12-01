@@ -117,17 +117,19 @@ ans2: T2 = None  # type: ignore
 
 
 def solve1(data: str) -> T1:
+    n,d=spl(data)
     
     return 
 
 
 def solve2(data: str) -> T2:
+    n,d=spl(data)
     
     return 
 
 
 if __name__ == '__main__':
-    run(submit=1, year={year}, day={day})
+    run()
 '''
 
 if __name__ == '__main__':
