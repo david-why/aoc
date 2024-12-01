@@ -39,7 +39,7 @@ def run(**kwargs) -> None:
     try_file = file_base + '.try'
     if os.path.exists(try_file):
         with open(try_file) as f:
-            wait_until = float(f.read()) + 60
+            wait_until = float(f.read())
     else:
         wait_until = 0
     glob = frame.frame.f_globals
@@ -64,14 +64,10 @@ def run(**kwargs) -> None:
                 glob[f'testans{prev}'] = kwargs[f'testans{prev}']
         ans = glob[f'solve{level}'](test_data)
         click.echo(f'{ans}')
-        if kwargs.get(f'testans{level}') is not None:
-            success = ans == kwargs[f'testans{level}']
-            if success:
-                click.echo('Test passed')
-            else:
-                click.echo('Test failed')
-        else:
-            success = click.confirm('Correct? ', default=True)
+        success = click.confirm(
+            'Correct? ',
+            default=f'testans{level}' not in kwargs or ans == kwargs[f'testans{level}'],
+        )
         if success:
             kwargs[f'testans{level}'] = ans
             with open(state_file, 'w') as f:
@@ -88,7 +84,7 @@ def run(**kwargs) -> None:
             click.echo(f'Result: {result.result.name} - {result.text}')
             if result.result != SubmitResultEnum.correct:
                 with open(try_file, 'w') as f:
-                    f.write(str(result.time.timestamp()))
+                    f.write(str(result.try_after.timestamp()))
             else:
                 kwargs['ans1'] = ans
                 kwargs['level'] = level = 2 if level == 1 else 0

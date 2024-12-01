@@ -8,10 +8,20 @@ from aoc.web import get_input_data, set_session
 
 _now = time.localtime()
 CURRENT_YEAR = _now.tm_year
+# FIXME day for pacific time
 CURRENT_DAY = _now.tm_mday if _now.tm_mon == 12 and _now.tm_mday <= 25 else None
 del _now
 
 ctx = {'year': CURRENT_YEAR}
+
+
+def format_dur(seconds: float) -> str:
+    if seconds < 60:
+        return f'{seconds:.1f}s'
+    seconds = int(seconds)
+    if seconds < 3600:
+        return f'{seconds // 60}m {seconds % 60}s'
+    return f'{seconds // 3600}h {(seconds % 3600) // 60}m'
 
 
 @click.group()
@@ -37,7 +47,9 @@ def download(day: int):
 
 
 @cli.command()
-@click.option('--day', type=int, default=CURRENT_DAY, help='The day of the Advent of Code')
+@click.option(
+    '--day', type=int, default=CURRENT_DAY, help='The day of the Advent of Code'
+)
 @click.option('--download/--no-download', default=True, help='Download the input data')
 @click.option(
     '--code/--no-code', default=False, help='Whether to open VS Code with the files'
@@ -65,21 +77,30 @@ def init(day: int | None, download: bool, code: bool, yes: bool):
     if not os.path.exists(f'{year}/day{day}.json'):
         with open(f'{year}/day{day}.json', 'w') as f:
             json.dump({'year': year, 'day': day, 'level': 1}, f)
+    if code:
+        files = f'{year}/day{day}.test {year}/day{day}.py'
+        os.system(f'code {files}')
     if download:
         if (
             not os.path.exists(f'{year}/day{day}.in')
             or yes
             or click.confirm('The input file already exists. Override? ')
         ):
+            wait_until = (
+                time.mktime(
+                    time.strptime(f'{year}-12-{day} 00:00:00', '%Y-%m-%d %H:%M:%S')
+                )
+                - time.timezone
+                + 5 * 3600
+            )
+            if time.time() < wait_until:
+                wait_for = wait_until - time.time()
+                click.echo(f"Waiting {format_dur(wait_for)} to download the input data")
+                time.sleep(wait_for)
             click.echo('Downloading input data')
             data = get_input_data(year, day)
             with open(f'{year}/day{day}.in', 'w') as f:
                 f.write(data)
-    if code:
-        files = f'{year}/day{day}.test {year}/day{day}.py'
-        if download:
-            files += f' {year}/day{day}.in'
-        os.system(f'code {files}')
 
 
 TEMPLATE = '''\
